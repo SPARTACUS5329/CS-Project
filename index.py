@@ -4,7 +4,7 @@ from PIL import Image, ImageTk
 
 class MenuBar:
     def __init__(self,root):
-        self.toolbar=Frame(root,bd=1,relief=RAISED,bg=user.toolbar_bg)
+        self.toolbar=Frame(root,bd=1,relief=RAISED,bg="light blue")
 
         compose_img=Image.open('./Assets/plus.jpg')
         inbox_img=Image.open('./Assets/Inbox.png')
@@ -60,100 +60,6 @@ class TUTORIAL:
         self.compose_label.config(background='bisque')
         self.inbox_label=Label(side_frame,text='CHECK INBOX',font=(None,8)).grid(row=0,column=1)
 
-class SELECTION:
-    def __init__(self):
-
-        global mainframe
-        mainframe.destroy()
-        mainframe = Frame(root,width=800,height=600)
-        mainframe.pack_propagate(0)
-        mainframe.pack()
-        
-        self.select_window=Frame(mainframe,bd=1,relief=RAISED,bg='light blue')
-
-        red_img=Image.open('./Assets/red.png')
-        blue_img=Image.open('./Assets/blue.png')
-        green_img=Image.open('./Assets/green.png')
-        yellow_img=Image.open('./Assets/yellow.png')
-        bisque_img=Image.open('./Assets/bisque.png')
-        lightgreen_img=Image.open('./Assets/lightgreen.png')
-        tick_img=Image.open('./Assets/tick.png')
-
-        red_icon=ImageTk.PhotoImage(red_img)
-        blue_icon=ImageTk.PhotoImage(blue_img)
-        green_icon=ImageTk.PhotoImage(green_img)
-        yellow_icon=ImageTk.PhotoImage(yellow_img)
-        bisque_icon=ImageTk.PhotoImage(bisque_img)
-        lightgreen_icon=ImageTk.PhotoImage(lightgreen_img)
-        tick_icon=ImageTk.PhotoImage(tick_img)
-
-        red_button=Button(self.select_window,image=red_icon,command= lambda : self.change_colour('red'))
-        blue_button=Button(self.select_window,image=blue_icon,command= lambda : self.change_colour('blue'))
-        green_button=Button(self.select_window,image=green_icon,command= lambda : self.change_colour('green'))
-        yellow_button=Button(self.select_window,image=yellow_icon,command= lambda : self.change_colour('yellow'))
-        bisque_button=Button(self.select_window,image=bisque_icon,command= lambda : self.change_colour('bisque'))
-        lightgreen_button=Button(self.select_window,image=lightgreen_icon,command= lambda : self.change_colour('light green'))
-        tick_button=Button(self.select_window,image=tick_icon,command= lambda : self.finalise())
-
-        red_button.image=red_icon
-        blue_button.image=blue_icon
-        green_button.image=green_icon
-        yellow_button.image=yellow_icon
-        bisque_button.image=bisque_icon
-        lightgreen_button.image=lightgreen_icon
-        tick_button.image=tick_icon
-
-        red_button.pack(side=LEFT, padx=2, pady=2)
-        blue_button.pack(side=LEFT, padx=2, pady=2)
-        green_button.pack(side=LEFT, padx=2, pady=2)
-        yellow_button.pack(side=LEFT, padx=2, pady=2)
-        bisque_button.pack(side=LEFT, padx=2, pady=2)
-        lightgreen_button.pack(side=LEFT, padx=2, pady=2)
-        tick_button.pack(side=RIGHT, padx=2, pady=2)
-
-        self.select_window.pack(side=TOP,fill=X)
-
-        self.select_screen()
-
-    def select_screen(self):
-        self.t=Frame(mainframe,width=800,height=24,bg=user.toolbar_bg)
-        self.t.pack(side=TOP)
-        self.s=Frame(mainframe,height=550,width=280,bg=user.side_frame_bg)
-        self.s.pack(side=LEFT)
-        self.b=Frame(mainframe,height=550,width=520,bg=user.body_frame_bg)
-        self.b.pack(side=RIGHT)
-        self.select_changing_frame(self.t)
-        self.colour_d={self.t:user.toolbar_bg,self.s:user.side_frame_bg,self.b:user.body_frame_bg}
-        self.t.bind('<Button-1>',lambda e: self.select_changing_frame(self.t))
-        self.s.bind('<Button-1>',lambda e: self.select_changing_frame(self.s))
-        self.b.bind('<Button-1>',lambda e: self.select_changing_frame(self.b))
-
-
-    def select_changing_frame(self,frame):
-        self.t.config(highlightbackground=None)
-        self.t.config(highlightthickness=0)
-        self.s.config(highlightbackground=None)
-        self.s.config(highlightthickness=0)
-        self.b.config(highlightbackground=None)
-        self.b.config(highlightthickness=0)
-        frame.config(highlightbackground='black')
-        frame.config(highlightthickness=1)
-        self.changing_frame=frame
-
-    def change_colour(self,colour):
-        self.changing_frame.config(background=colour)
-        self.colour_d[self.changing_frame] = colour
-
-    def finalise(self):
-        with open('userdata.py','a') as f:
-            f.write(f"\n{user.username}.toolbar_bg = '{self.colour_d[self.t]}'")
-            f.write(f"\n{user.username}.side_frame_bg = '{self.colour_d[self.s]}'")
-            f.write(f"\n{user.username}.body_frame_bg = '{self.colour_d[self.b]}'")
-        importlib.reload(userdata)
-        usermenu(username)
-    def destroy(self):
-        self.select_window.destroy()
-
 def hazh(x):
     sume=sumo=suma=pr4=pr3=0
     ods=evs=prall=1
@@ -203,8 +109,9 @@ def create_account(user_name_entry,user_pass_entry1,user_pass_entry2,msg):
             return
         password=hazh(password1)
         with open("userdata.py",'a') as f:
-            f.write(f"\n{username} = USERS('{username}','{password}')")
-            f.write(f"\nuserDict['{username}'] = {username}")
+            #f.write(f"\n{username} = USERS('{username}','{password}')")
+            #f.write(f"\nuserDict['{username}'] = {username}")
+            f.write(f"\nuserDict['{username}'] = {password}")
         importlib.reload(userdata)
 
         inbox_filename="./UserfilesInbox/"+username+".dat"
@@ -233,15 +140,14 @@ def create_account_screen(rframe):
 
 def send(receiver_entry,message_entry,msg):
     receiver=receiver_entry.get()
-    receiver=userdata.userDict[receiver]
-    
-    if receiver in userdata.userDict.values():
-        receiver_file=receiver.inbox_file
-        sender_file=user.outbox_file
+
+    if receiver in userdata.userDict:
+        receiver_file="./UserfilesInbox/"+receiver+".dat"
+        sender_file="./UserfilesOutbox"+username+".dat"
         message=message_entry.get("1.0", "end-1c")
-        message = f"From: {user.username}\nTo: {receiver.username}\n{message}"
-        KEY_r=receiver.password
-        KEY_s=user.password
+        message = f"From: {username}\nTo: {receiver}\n{message}"
+        KEY_r=userdata.userDict[receiver]
+        KEY_s=userdata.userDict[username]
         message_r=RSA.rsa(message,RSA.keys(KEY_r,True)[0],RSA.keys(KEY_r,True)[1],True)
         print(message_r)
         with open(receiver_file,'ab') as f:
@@ -252,7 +158,7 @@ def send(receiver_entry,message_entry,msg):
         msg.config(text="Message sent")
         message_entry.delete('1.0',END)
     
-    elif receiver in userdata.groupDict.values():
+    elif receiver in userdata.groupDict:
         group_password=input("Enter the password of the group: ")
         group_password=hazh(group_password)
         
@@ -279,20 +185,20 @@ def send(receiver_entry,message_entry,msg):
 def check_inbox():
     global body_frame, side_frame
     body_frame.destroy()
-    body_frame=Frame(mainframe,height=600,width=520,background=user.body_frame_bg)
+    body_frame=Frame(mainframe,height=600,width=520,background="light green")
     body_frame.pack(side=RIGHT)
     body_frame.grid_propagate(0)
     side_frame.destroy()
-    side_frame=Frame(mainframe,height=600,width=280,background=user.side_frame_bg)
+    side_frame=Frame(mainframe,height=600,width=280,background="bisque")
     side_frame.pack(side=LEFT)
     side_frame.grid_propagate(0)
     usermenu(username)
-    Label(body_frame,text='INBOX',bg=user.body_frame_bg).pack(side=TOP)
+    Label(body_frame,text='INBOX',bg="light green").pack(side=TOP)
     output=Text(body_frame,height=40,bg='green')
     output.pack(side=LEFT)
     
-    filename=user.inbox_file
-    KEY=user.password
+    filename="./UserfilesInbox/"+username+".dat"
+    KEY=userdata.userDict[username]
     with open(filename,'rb') as f:       
         try:
             while True:
@@ -308,20 +214,20 @@ def check_inbox():
 def group_messages(group):
     global body_frame, side_frame
     body_frame.destroy()
-    body_frame=Frame(mainframe,height=600,width=520,background=user.body_frame_bg)
+    body_frame=Frame(mainframe,height=600,width=520,background="light green")
     body_frame.pack(side=RIGHT)
     body_frame.grid_propagate(0)
     side_frame.destroy()
-    side_frame=Frame(mainframe,height=600,width=280,background=user.side_frame_bg)
+    side_frame=Frame(mainframe,height=600,width=280,background="bisque")
     side_frame.pack(side=LEFT)
     side_frame.grid_propagate(0)
     usermenu(username)
-    Label(body_frame,text='INBOX',bg=user.body_frame_bg).pack(side=TOP)
+    Label(body_frame,text='INBOX',bg="light green").pack(side=TOP)
     output=Text(body_frame,height=40,bg='green')
     output.pack(side=LEFT)
 
-    filename=group.chatfile
-    KEY=group.password
+    filename="./Groups/"+group+".dat"
+    KEY=userdata.groupDict[group]
     with open(filename,'rb') as f:       
         try:
             while True:
@@ -336,15 +242,15 @@ def group_messages(group):
 def send_window():
     global body_frame,msg
     body_frame.destroy()
-    body_frame=Frame(mainframe,height=600,width=520,background=user.body_frame_bg)
+    body_frame=Frame(mainframe,height=600,width=520,background="light green")
     body_frame.pack(side=RIGHT)
     body_frame.grid_propagate(0)
-    msg = Label(body_frame,bg=user.body_frame_bg)
+    msg = Label(body_frame,bg="light green")
     msg.grid(row=1,column=1)
-    topframe = Frame(body_frame,width=520,height=50,bg=user.body_frame_bg)
+    topframe = Frame(body_frame,width=520,height=50,bg="light green")
     topframe.pack_propagate(0)
     topframe.grid(row=2,column=1)
-    Label(topframe,text='To:',bg=user.body_frame_bg).grid(row=1,column=1)
+    Label(topframe,text='To:',bg="light green").grid(row=1,column=1)
     receiver_entry=Entry(topframe)
     receiver_entry.grid(row=1,column=2)
     message_entry=Text(body_frame,height=10,bg='green')
@@ -353,13 +259,13 @@ def send_window():
     send_button.grid(row=4,column=1)
 
 def reset_pass(old,new,conf,msg):
-    if hazh(old.get()) != userdata.userDict[username].password:
+    if hazh(old.get()) != userdata.userDict[username]:
         msg.config(text='Current password entered is incorrect')
         old.delete(0,'end')
     else:
         if new.get() == conf.get():
-            filename=user.outbox_file
-            KEY=user.password
+            filename="./UserfilesInbox/"+username+".dat"
+            KEY=userdata.userDict[username]
             messagelist = []
             with open(filename,'rb') as f:     
                 try:
@@ -367,7 +273,7 @@ def reset_pass(old,new,conf,msg):
                         messagelist.append(RSA.rsa(pickle.load(f),RSA.keys(KEY,False)[0],RSA.keys(KEY,False)[1],False))
                 except: pass
             with open("userdata.py",'a') as f:
-                f.write(f"\n{username}.password = '{hazh(new.get())}'")
+                f.write(f"\nuserDict[{username}] = '{hazh(new.get())}'")
             importlib.reload(userdata)
             with open(filename,'wb') as f:     
                 for i in messagelist:
@@ -380,22 +286,22 @@ def reset_pass(old,new,conf,msg):
 def reset_pass_screen():
     global body_frame,msg
     body_frame.destroy()
-    body_frame=Frame(mainframe,height=600,width=520,background=user.body_frame_bg)
+    body_frame=Frame(mainframe,height=600,width=520,background="light green")
     body_frame.pack(side=RIGHT)
     body_frame.grid_propagate(0)
     re_enter = Entry(body_frame,show='*')
     new_pass = Entry(body_frame,show='*')
     confirm_ = Entry(body_frame,show='*')
 
-    Label(body_frame,text='Current password ',bg=user.body_frame_bg).grid(row=1,column=1)
-    Label(body_frame,text='New password ',bg=user.body_frame_bg).grid(row=2,column=1)
-    Label(body_frame,text='Confirm new password ',bg=user.body_frame_bg).grid(row=3,column=1)
+    Label(body_frame,text='Current password ',bg="light green").grid(row=1,column=1)
+    Label(body_frame,text='New password ',bg="light green").grid(row=2,column=1)
+    Label(body_frame,text='Confirm new password ',bg="light green").grid(row=3,column=1)
     re_enter.grid(row=1,column=2)
     new_pass.grid(row=2,column=2)
     confirm_.grid(row=3,column=2)
-    msg = Label(body_frame,bg=user.body_frame_bg,fg='#f00')
+    msg = Label(body_frame,bg="light green",fg='#f00')
     msg.grid(row=4,column=1,columnspan=2)
-    Button(body_frame,text='Reset',command=lambda: reset_pass(re_enter,new_pass,confirm_,msg),bg=user.body_frame_bg).grid(row=5,column=1,columnspan=2)
+    Button(body_frame,text='Reset',command=lambda: reset_pass(re_enter,new_pass,confirm_,msg),bg="light green").grid(row=5,column=1,columnspan=2)
 
 def clearMessages():
     filename="./UserfilesInbox/"+username+".dat"
@@ -417,8 +323,8 @@ def checkOutbox():
     output=Text(body_frame,height=40,bg='green')
     output.pack(side=LEFT)
 
-    filename=user.outbox_file
-    KEY=user.password
+    filename="./UserfilesOutbox/"+username+".dat"
+    KEY=userdata.userDict[username]
     with open(filename,'rb') as f:       
         try:
             while True:
@@ -444,7 +350,8 @@ def createGroup(admin,group_name,group_password,msg,members):
     group_password=hazh(group_password.get())
 
     with open("userdata.py",'a') as f:
-        f.write(f"\n{group_name} = GROUP('{group_name}','{group_password}','{admin}')\ngroupDict['{group_name}'] = '{group_password}'")
+        #f.write(f"\n{group_name} = GROUP('{group_name}','{group_password}','{admin}')\ngroupDict['{group_name}'] = '{group_password}'")
+        f.write(f"\ngroupDict['{group_name}']='group_password'")
 
     for i in members:
         if i not in userdata.userDict:
@@ -470,7 +377,7 @@ def createGroup(admin,group_name,group_password,msg,members):
 def createGroupScreen():
     global body_frame
     body_frame.destroy()
-    body_frame=Frame(mainframe,height=600,width=520,background=user.body_frame_bg)
+    body_frame=Frame(mainframe,height=600,width=520,background="light green")
     body_frame.pack(side=RIGHT)
     body_frame.grid_propagate(0)
     Label(body_frame,bg=userdata.userDict[username].body_frame_bg, text='Usernames of individuals in the group separated by a ;').grid(row=1,column=1,columnspan=2)
@@ -496,12 +403,12 @@ def usermenu(userx):
     mainframe.pack_propagate(0)
     mainframe.pack()
     tools=MenuBar(mainframe)
-    side_frame=Frame(mainframe,height=600,width=280,background=user.side_frame_bg)
+    side_frame=Frame(mainframe,height=600,width=280,background="bisque")
     side_frame.pack_propagate(0)
     side_frame.pack(side=LEFT)
     side_frame.grid_propagate(0)
     #tutorial=TUTORIAL()
-    body_frame=Frame(mainframe,height=600,width=520,background=user.body_frame_bg)
+    body_frame=Frame(mainframe,height=600,width=520,background="light green")
     body_frame.pack_propagate(0)
     body_frame.pack(side=RIGHT)
     body_frame.grid_propagate(0)
