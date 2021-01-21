@@ -1,5 +1,3 @@
-create table users(
-    userid char(20) not null,
-    username char(20) primary key,
-    password char(20)
+create table {groupname} (
+    member char(20) not null
 );
