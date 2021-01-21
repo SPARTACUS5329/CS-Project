@@ -3,6 +3,7 @@ import pickle  # Library for handling binary files
 import RSA  # File that has the encryption algorithm ie RSA that is being used for storing messages
 import importlib  # Library that is used to reload a particular file in this case userdata so that everything can be handled in real time
 import os  # Library for handling the terminal
+import pymysql as sql
 
 try:  # Checking if the module colorama already exists
     import colorama
@@ -19,9 +20,30 @@ finally:  # Initialisng colorama and it's elements
     colorama.init()
 
 
+# Connecting to the database
+while True:
+    try:
+        passcode = input('ENTER THE PASSWORD:-')
+        user_workspace = sql.connect(host='localhost', user='root',
+                                     passwd=passcode)
+        cursor = user_workspace.cursor()
+        try:
+            cursor.execute('create database users;')
+        finally:
+            cursor.execute('use users;')
+            #Creating the table
+            cursor.execute("""create table users(
+                              userid char(20) not null,
+                              username char(20) primary key,
+                              password char(20)
+                            );""")
+        break
+    except:
+        print('INCORRECT PASSWORD')
+
+
 def doNothing(*args):  # A function used while development
     pass
-
 
 def hazh(x):  # Hashing function that is used to store passowrds
     sume = sumo = suma = pr4 = pr3 = 0
@@ -326,11 +348,14 @@ def Menu():
             print("\n\nThis account doesn't exist")
             print("Try entering a valid username or create an account by this name")
     elif response == "3":
+        cursor.close()
+        user_workspace.close()
         exit()
     else:
         print("Invalid response")
     input("Press Enter to continue...\n\n")
     Menu()
+
 
 def terminal_check(using_terminal):
     if using_terminal == 'y' or using_terminal == 'Y' or using_terminal == 'Yes' or using_terminal == 'yes':
@@ -350,6 +375,8 @@ def terminal_check(using_terminal):
     else:
         print("Enter a valid answer")
         return terminal_check(using_terminal)
+
+
 if __name__ == "__main__":
     using_terminal = input("Are you using the Terminal/Command Prompt(y/n) ? ")
     terminal_check(using_terminal)
