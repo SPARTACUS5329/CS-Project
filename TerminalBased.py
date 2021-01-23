@@ -18,7 +18,7 @@ while True:  # Connecting to the databases
                                 username char(20) primary key,
                                 password char(20)
                             );""")
-        except:
+        except sql.err.OperationalError:
             pass
         try:
             user_cursor.execute("""create table messaginggroups(
