@@ -1,8 +1,8 @@
-from pymysql import cursors
+from pymysql import TIMESTAMP, cursors
 import RSA  # ENCRYPTION ALGORITHM
 import pymysql as sql
 import os
-
+import time
 
 while True:  # Connecting to the databases
     try:
@@ -15,7 +15,6 @@ while True:  # Connecting to the databases
         user_cursor = user_db.cursor()
         try:  # Creating the table if it doesn't exist
             user_cursor.execute("""create table users(
-                                userid char(20) not null,
                                 username char(20) primary key,
                                 password char(20)
                             );""")
@@ -23,7 +22,6 @@ while True:  # Connecting to the databases
             pass
         try:
             user_cursor.execute("""create table messaginggroups(
-                                groupid char(20) not null,
                                 groupname char(20) primary key,
                                 password char(20)
                             );""")
@@ -31,6 +29,7 @@ while True:  # Connecting to the databases
             pass
         # Once all the setup is done and the programming will be executed properly
         print("Successfully connected to the database")
+        time.sleep(1.5)
         break
     except:
         print('INCORRECT PASSWORD')
@@ -86,7 +85,7 @@ def retrieve_user_list():  # This is used to retrieve the users every time they 
     record_tuples = user_cursor.fetchall()
     _user = {}
     for i in record_tuples:
-        _user[i[1]] = i[2]
+        _user[i[0]] = i[1]
     return _user
 
 
@@ -95,7 +94,7 @@ def retrieve_group_list():#This is used to retrieve the groups every time they a
     record_tuples = user_cursor.fetchall()
     _group = {}
     for i in record_tuples:
-        _group[i[1]] = i[2]
+        _group[i[0]] = i[1]
     return _group
 
 
@@ -106,10 +105,9 @@ def create_account():  # Creating an account ie tables for the inbox and outbox
         print('This username already exists')
         return create_account()
     else:
-        userid = input("Enter your userid: ")
-        password = input("Enter your password: ")
+        password = hazh(input("Enter your password: "))
         user_cursor.execute(
-            f"insert into users values('{userid}','{username}','{password}')")
+            f"insert into users values('{username}','{password}')")
         user_cursor.execute(f"""create table {username}_inbox (
                             sender char(20) not null,
                             message text
@@ -121,11 +119,12 @@ def create_account():  # Creating an account ie tables for the inbox and outbox
         user_db.commit()
         user_list = retrieve_user_list()
         print("Account created successfully")
+        time.sleep(1.5)
     return username
 
 
 def login(username):  # Auth function
-    password = input("Enter your password: ")
+    password = hazh(input("Enter your password: "))
     if not password == user_list[username]:
         print("Incorrect password...")
         return login(username)
@@ -133,6 +132,13 @@ def login(username):  # Auth function
     else:
         return True
 
+def check_user_in_group(user,group):
+    user_cursor.execute(f"select * from {group}")
+    records = user_cursor.fetchall()
+    for i in records:
+        if i[0] == user:
+            return True
+    return False
 
 def send_message(username):  # Sends a message from {username} to {receiever}
     receiver = input("To(username/groupname): ")
@@ -140,6 +146,11 @@ def send_message(username):  # Sends a message from {username} to {receiever}
         print("This receiver does not exist")
         return send_message()
     else:
+        if receiver in group_list and not check_user_in_group(username, receiver):
+            print("You are not in this group, so you can't send messages in it.")
+            time.sleep(1.5)
+            return None
+
         message = input("Message: ")
         user_cursor.execute(
             f"insert into {receiver}_inbox values('{username}','{message}');")
@@ -147,6 +158,7 @@ def send_message(username):  # Sends a message from {username} to {receiever}
             f"insert into {username}_outbox values('{receiver}','{message}');")
         user_db.commit()
         print("Message sent successfully")
+        time.sleep(1.5)
         return True
 
 
@@ -154,7 +166,7 @@ def check_inbox(username):  # To check the inbox of {username}
     # If it is not an individual user and it is a group
     if not username in user_list and username in group_list:
         # Then ask for a password
-        password = input("Enter the password of the group: ")
+        password = hazh(input("Enter the password of the group: "))
         # Return the function if the password is incorrect
         if not password == group_list[username]:
             print("Incorrect password...")
@@ -201,13 +213,12 @@ def create_group(username):  # Creating a group
         # The variable admin isn't really required but I still made it coz why not when a statement makes more sense?
         # That statement is the one where the adming is automatically added to the group no matter what
         admin = username
-        groupid = input("Enter the group ID: ")
         grouppassword = input("Enter the group password: ")
         user_cursor.execute(
-            f"insert into messaginggroups values('{groupid}','{groupname}','{grouppassword}')")
+            f"insert into messaginggroups values('{groupname}','{grouppassword}')")
         # Creating a table for the list of users
         user_cursor.execute(f"""create table {groupname}(
-                                        group_member char(20) not null
+                                        group_member char(20) primary key
                                         );
                                         """)
         # Creating a table for the messages
@@ -217,7 +228,7 @@ def create_group(username):  # Creating a group
                                         );
                                         """)
         # Adding the admin to thr group no matter what
-        user_cursor.execute(f"insert into {groupname} values('{admin}')")
+        user_cursor.execute(f"insert into {groupname} values('{admin}');")
 
         # In case the user doesn't input a number for the no_of_group_members
         while True:
@@ -237,13 +248,16 @@ def create_group(username):  # Creating a group
             elif not group_member in user_list:
                 print("This user does not exist")
             else:
-                # Checking if the user has entered a duplicate username
-                try:
+                try:  # Checking if the user has entered a duplicate username
                     user_cursor.execute(
-                        f"insert into {groupname} values('{group_member}')")
+                        f"insert into {groupname} values('{group_member}');")
                     i += 1
                 except:
                     print("This user is already in the group")
+                else:  # If the user has been added to the table successfully:
+                    user_cursor.execute(
+                        f"insert into {group_member}_inbox values('{admin}','You have been added to a group called {groupname} and the password is {grouppassword}');")
+
         user_db.commit()
         # Retrieving the group_list again because a new group has just been created
         group_list = retrieve_group_list()
@@ -312,6 +326,7 @@ def login_menu(username):  # Menu of all tasks that a user can perform
     elif choice == '8':
         if delete_account(username):
             print("Account successfully deleted...")
+            time.sleep(1.5)
             return None
         else:
             print("Deletion aborted")
