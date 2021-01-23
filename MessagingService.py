@@ -1,5 +1,4 @@
 from pymysql import TIMESTAMP, cursors
-import RSA  # ENCRYPTION ALGORITHM
 import pymysql as sql
 import os
 import time
