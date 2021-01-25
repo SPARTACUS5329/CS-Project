@@ -17,7 +17,7 @@ while True:  # Connecting to the databases
                                 username char(20) primary key,
                                 password char(20)
                             );""")
-        except sql.err.OperationalError:
+        except:
             pass
         try:
             user_cursor.execute("""create table messaginggroups(
@@ -30,7 +30,7 @@ while True:  # Connecting to the databases
         print("Successfully connected to the database")
         time.sleep(1.5)
         break
-    except:
+    except sql.err.OperationalError:
         print('INCORRECT PASSWORD')
 
 
@@ -88,7 +88,7 @@ def retrieve_user_list():  # This is used to retrieve the users every time they 
     return _user
 
 
-def retrieve_group_list():#This is used to retrieve the groups every time they are updated
+def retrieve_group_list():  # This is used to retrieve the groups every time they are updated
     record_tuples = user_cursor.execute('select * from messaginggroups;')
     record_tuples = user_cursor.fetchall()
     _group = {}
@@ -131,13 +131,15 @@ def login(username):  # Auth function
     else:
         return True
 
-def check_user_in_group(user,group):
+
+def check_user_in_group(user, group):
     user_cursor.execute(f"select * from {group}")
     records = user_cursor.fetchall()
     for i in records:
         if i[0] == user:
             return True
     return False
+
 
 def send_message(username):  # Sends a message from {username} to {receiever}
     receiver = input("To(username/groupname): ")
@@ -276,7 +278,8 @@ def delete_account(username):  # Deleting the account of the user from this mess
     # If the user chooses to delete the account
     if choice == f"{username}:{user_list[username]}":
         # Deleting the record from the users table
-        user_cursor.execute(f"delete from users where username = '{username}';")
+        user_cursor.execute(
+            f"delete from users where username = '{username}';")
         user_cursor.execute(f"drop table {username}_inbox;")
         user_cursor.execute(f"drop table {username}_outbox;")
         for i in group_list:
@@ -295,6 +298,16 @@ def delete_account(username):  # Deleting the account of the user from this mess
         return False
 
 
+def view_all_users(username):  # Viewing a list of all users except the current user themself
+    print("\n\n")
+    a = 1
+    for i in user_list:
+        if not i == username:
+            print(f"{a}. {i}")
+            a+=1
+    return None
+
+
 def login_menu(username):  # Menu of all tasks that a user can perform
     clear_shell()
     print("These are all the tasks you can perform")
@@ -305,7 +318,8 @@ def login_menu(username):  # Menu of all tasks that a user can perform
     print("5.Check your outbox")
     print("6.Create a group")
     print("7.Check your group inbox")
-    print("8.Delete account")
+    print("8.View a list of all users")
+    print("9.Delete account")
     choice = input("Enter your choice: ")
     if choice == '1':
         send_message(username)
@@ -323,6 +337,8 @@ def login_menu(username):  # Menu of all tasks that a user can perform
         groupname = input("Enter the name of the group:")
         check_inbox(groupname)
     elif choice == '8':
+        view_all_users(username)
+    elif choice == '9':
         if delete_account(username):
             print("Account successfully deleted...")
             time.sleep(1.5)
