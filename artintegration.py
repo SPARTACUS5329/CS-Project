@@ -1,5 +1,4 @@
 import pymysql
-import numpy as np
 import matplotlib.pyplot as plt
 from tkinter import *
 
@@ -151,7 +150,7 @@ def display_graph():
         bg1.append(i[6])
         bg1.append(i[7])
 
-    r1 = np.arange(len(bg1))
+    r1 = [1,2,3,4,5]
     r2 = [i + barWidth for i in r1]
 
     plt.bar(r1,bg2,width=0.1,label="Class Average")
