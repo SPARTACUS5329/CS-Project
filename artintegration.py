@@ -141,7 +141,7 @@ def display_graph():
     bg1=[]
     x=["English","Physics","Chemistry","Mathematics","Computer Science"]
 
-    barWidth = 0.1
+    barWidth = 0.2
 
     for i in rec:
         bg1.append(i[3])
