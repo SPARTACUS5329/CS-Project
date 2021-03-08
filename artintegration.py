@@ -130,10 +130,11 @@ def display_graph():
 
     bg2=[avg_eng,avg_phy,avg_chem,avg_maths,avg_cs]
 
-    try: rr=int(roll_no.get())
+    try: 
+        rr=int(roll_no.get())
     except:
-        print('Please enter roll no.')
         return
+    
     aa=f"select * from stu where roll='{rr}';"
     rows=cur.execute(aa)
     rec=cur.fetchall()
@@ -150,7 +151,7 @@ def display_graph():
         bg1.append(i[6])
         bg1.append(i[7])
 
-    r1 = [1,2,3,4,5]
+    r1 = [0,1,2,3,4]
     r2 = [i + barWidth for i in r1]
 
     plt.bar(r1,bg2,width=0.1,label="Class Average")
