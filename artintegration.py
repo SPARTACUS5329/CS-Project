@@ -154,8 +154,8 @@ def display_graph():
     r1 = [0,1,2,3,4]
     r2 = [i + barWidth for i in r1]
 
-    plt.bar(r1,bg2,width=0.1,label="Class Average")
-    plt.bar(r2,bg1,width=0.1,label="Student")
+    plt.bar(r1,bg2,width=0.2,label="Class Average")
+    plt.bar(r2,bg1,width=0.2,label="Student")
     plt.xlabel('group', fontweight='bold')
     plt.xticks([r + barWidth for r in range(len(bg1))], ['English', 'Physics', 'Chemistry', 'Maths', 'CS'])
 
