@@ -165,13 +165,14 @@ def send_message(username):  # Sends a message from {username} to {receiever}
 
 def check_inbox(username):  # To check the inbox of {username}
     # If it is not an individual user and it is a group
-    if not username in user_list and username in group_list:
+    if not (username in user_list) and username in group_list:
         # Then ask for a password
-        password = hazh(input("Enter the password of the group: "))
+        password = input("Enter the password of the group: ")
         # Return the function if the password is incorrect
-        if not password == group_list[username]:
+        if not (password == group_list[username]):
+            print(group_list[username])
             print("Incorrect password...")
-            return check_individual_outbox(username)
+            return check_inbox(username)
     messages = user_cursor.execute(f"select * from {username}_inbox;")
     messages = user_cursor.fetchall()
     if not len(messages):
@@ -206,8 +207,9 @@ def erase_inbox(username):  # Erasing all the messages from the inbox of a user
 
 def create_group(username):  # Creating a group
     global group_list
+    print(group_list)
     groupname = input("Enter the name of the group: ")
-    if groupname in group_list:
+    if groupname in group_list or groupname in user_list:
         print("This group name already exists")
         return create_group(username)
     else:
